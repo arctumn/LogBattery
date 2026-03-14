@@ -13,19 +13,20 @@ public class RequestResponseLoggingMiddleware
 
     private readonly RequestDelegate _next;
     private readonly ILogger<RequestResponseLoggingMiddleware> _logger;
+    private readonly string _pathPrefix;
 
-    public RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger)
+    public RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger, string pathPrefix = "/api")
     {
         _next = next;
         _logger = logger;
+        _pathPrefix = pathPrefix;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         var request = context.Request;
 
-        // Only log for API requests with content
-        if (!request.Path.StartsWithSegments("/api"))
+        if (!request.Path.StartsWithSegments(_pathPrefix))
         {
             await _next(context);
             return;
