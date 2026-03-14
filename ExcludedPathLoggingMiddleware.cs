@@ -15,7 +15,7 @@ public class ExcludedPathLoggingMiddleware(RequestDelegate next, string[] exclud
     {
         if (excludedPaths.Any(p => context.Request.Path.StartsWithSegments(p)))
         {
-            using (LogContext.PushProperty(LoggingExtensions.ExcludedPathProperty, true))
+            using (LogContext.PushProperty(LogBatteryConfig.ExcludedPathProperty, true))
             {
                 await next(context);
             }
