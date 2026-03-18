@@ -7,28 +7,20 @@ namespace LogBattery;
 /// <summary>
 /// Middleware that captures and logs HTTP request bodies (inputs) and response bodies (outputs).
 /// </summary>
-public class RequestResponseLoggingMiddleware
+public class RequestResponseLoggingMiddleware(
+    RequestDelegate next,
+    ILogger<RequestResponseLoggingMiddleware> logger,
+    string? pathPrefix = "/api")
 {
     private const int MaxPayloadLength = 4096;
-
-    private readonly RequestDelegate _next;
-    private readonly ILogger<RequestResponseLoggingMiddleware> _logger;
-    private readonly string _pathPrefix;
-
-    public RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger, string pathPrefix = "/api")
-    {
-        _next = next;
-        _logger = logger;
-        _pathPrefix = pathPrefix;
-    }
 
     public async Task InvokeAsync(HttpContext context)
     {
         var request = context.Request;
 
-        if (!request.Path.StartsWithSegments(_pathPrefix))
+        if (pathPrefix != null && !request.Path.StartsWithSegments(pathPrefix))
         {
-            await _next(context);
+            await next(context);
             return;
         }
 
@@ -49,7 +41,7 @@ public class RequestResponseLoggingMiddleware
 
         try
         {
-            await _next(context);
+            await next(context);
         }
         finally
         {
@@ -62,7 +54,7 @@ public class RequestResponseLoggingMiddleware
             var truncatedRequest = Truncate(requestBody);
             var truncatedResponse = Truncate(responseBody);
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "HTTP {RequestMethod} {RequestPath} | Request: {RequestBody} | Response: {ResponseBody}",
                 request.Method,
                 request.Path.ToString(),
