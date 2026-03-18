@@ -7,7 +7,7 @@ Log Battery Module — provides structured logging with Serilog, compact JSON fi
 - **Structured Logging** — pre-configured Serilog with compact JSON file sinks and console output.
 - **Log Enrichment** — automatic enrichment with environment name, machine name, thread ID, and application name.
 - **Request Logging** — `UseCompactRequestLogging` middleware with configurable path exclusions (e.g. `/health`, `/alive`).
-- **Request/Response Body Capture** — logs request and response bodies for `/api` endpoints (configurable prefix), truncated to 4 KB.
+- **Request/Response Body Capture** — logs request and response bodies for all endpoints by default (configurable prefix), truncated to 4 KB.
 - **Built-in Log Viewer** — browser-based UI at `/logs` for viewing, filtering, and searching log entries with request timeline grouping by trace ID.
 - **Rolling Files** — daily rolling log files with 30-day retention.
 
@@ -41,13 +41,25 @@ builder.AddCompactLogging("MyApp",
     excludedPaths: ["/health", "/alive", "/status", "/ready"]);
 ```
 
+### Request/Response body capture
+
+By default, request and response bodies are captured for **all** endpoints. To restrict capture to a specific path prefix:
+
+```csharp
+// All-in-one — only capture bodies for /api routes
+app.UseCompactRequestLogging(requestResponsePathPrefix: "/api");
+
+// Or individually
+app.UseRequestResponseLogging(pathPrefix: "/api");
+```
+
 ### Individual middleware registration
 
 If you need control over middleware ordering or want to skip body capture:
 
 ```csharp
 app.UseExcludedPathLogging();          // suppress logs for excluded paths
-app.UseRequestResponseLogging();       // capture request/response bodies
+app.UseRequestResponseLogging();       // capture request/response bodies (all routes)
 app.UseSerilogCompactRequestLogging(); // Serilog HTTP request summary
 ```
 
