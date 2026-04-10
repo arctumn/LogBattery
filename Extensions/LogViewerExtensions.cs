@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LogBattery;
 
@@ -108,6 +109,63 @@ public static class LogViewerExtensions
                 totalCount,
                 totalPages
             });
+        });
+
+        // --- Trace list ---
+        app.MapGet(basePath + "/api/traces", (string? search, int? limit, HttpContext ctx) =>
+        {
+            var store = ctx.RequestServices.GetService<TraceStore>();
+            if (store == null)
+                return Results.Ok(new { traces = Array.Empty<object>(), enabled = false });
+
+            var traces = store.GetTraces(search, limit ?? 50)
+                .Select(t => new
+                {
+                    traceId = t.TraceId,
+                    rootSpan = t.RootSpan,
+                    httpMethod = t.HttpMethod,
+                    httpRoute = t.HttpRoute,
+                    httpStatusCode = t.HttpStatusCode,
+                    startTime = t.StartTime.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                    durationMs = t.DurationMs,
+                    spanCount = t.SpanCount,
+                    hasErrors = t.HasErrors
+                })
+                .ToList();
+
+            return Results.Ok(new { traces, enabled = true });
+        });
+
+        // --- Trace detail (spans) ---
+        app.MapGet(basePath + "/api/traces/{traceId}", (string traceId, HttpContext ctx) =>
+        {
+            var store = ctx.RequestServices.GetService<TraceStore>();
+            if (store == null)
+                return Results.Ok(new { spans = Array.Empty<object>(), enabled = false });
+
+            var spans = store.GetSpans(traceId);
+            if (spans.Count == 0)
+                return Results.Ok(new { spans = Array.Empty<object>(), enabled = true });
+
+            var traceStart = spans.Min(s => s.StartTimeUtc);
+
+            var result = spans.Select(s => new
+            {
+                spanId = s.SpanId,
+                parentSpanId = s.ParentSpanId,
+                operationName = s.OperationName,
+                kind = s.Kind,
+                startTime = s.StartTimeUtc.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                offsetMs = (s.StartTimeUtc - traceStart).TotalMilliseconds,
+                durationMs = s.DurationMs,
+                status = s.Status,
+                httpMethod = s.HttpMethod,
+                httpRoute = s.HttpRoute,
+                httpStatusCode = s.HttpStatusCode,
+                attributes = s.Attributes
+            }).ToList();
+
+            return Results.Ok(new { spans = result, enabled = true });
         });
 
         // --- UI ---
