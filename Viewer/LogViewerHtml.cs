@@ -86,6 +86,8 @@ internal static class LogViewerHtml
                 .detail-message { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: #c9d1d9; word-break: break-word; white-space: pre-wrap; }
                 .detail-exception { background: #1a0000; border: 1px solid #490202; border-radius: 6px; padding: 10px 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 11px; color: #f85149; word-break: break-word; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
 
+                .log-waterfall-container { margin-bottom: 12px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; }
+                .log-waterfall-container .waterfall { padding: 12px; }
                 .timeline-title { color: #8b949e; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin: 12px 0 6px; display: flex; align-items: center; gap: 8px; }
                 .sub-table { width: 100%; border-collapse: collapse; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; font-size: 12px; }
                 .sub-table th { text-align: left; padding: 6px 10px; background: #0a0d12; color: #8b949e; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #30363d; white-space: nowrap; }
@@ -330,14 +332,15 @@ internal static class LogViewerHtml
                     renderTable(filtered);
                 }
 
+                let visibleLogs = [];
                 function renderTable(logs) {
                     const body  = document.getElementById('logBody');
                     const empty = document.getElementById('empty');
                     // Hide entries that are grouped under a parent HTTP row
-                    const visible = logs.filter(l => !isChild(l));
-                    if (!visible.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
+                    visibleLogs = logs.filter(l => !isChild(l));
+                    if (!visibleLogs.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
                     empty.style.display = 'none';
-                    body.innerHTML = visible.map(buildRow).join('');
+                    body.innerHTML = visibleLogs.map(buildRow).join('');
                 }
 
                 function buildRow(l, i) {
@@ -414,6 +417,11 @@ internal static class LogViewerHtml
                         }
                     }
 
+                    // Trace waterfall placeholder — loaded on expand
+                    if (l.traceId) {
+                        html += `<div id="log-waterfall-${rowIdx}" class="log-waterfall-container" data-traceid="${esc(l.traceId)}" data-loaded="false"></div>`;
+                    }
+
                     if (items.length) html += `<div class="detail-props">${buildProps(items)}</div>`;
                     if (l.message)   html += `<div class="detail-section"><div class="detail-section-title">Message</div><div class="detail-message">${esc(l.message)}</div></div>`;
                     if (l.exception) html += `<div class="detail-section"><div class="detail-section-title">Exception</div><div class="detail-exception">${esc(l.exception)}</div></div>`;
@@ -486,13 +494,36 @@ internal static class LogViewerHtml
                     tog.textContent = expanded ? '▲ less' : '▼ more';
                 }
 
-                function toggleRow(i) {
+                async function toggleRow(i) {
                     const row = document.getElementById('detail-' + i);
                     if (!row) return;
                     const btn  = document.querySelector(`[data-idx="${i}"] .expand-btn`);
                     const open = row.style.display === 'none';
                     row.style.display = open ? '' : 'none';
                     if (btn) btn.textContent = open ? '−' : '+';
+
+                    // Lazy-load trace waterfall on first expand
+                    if (open) {
+                        const wfContainer = document.getElementById('log-waterfall-' + i);
+                        if (wfContainer && wfContainer.dataset.loaded === 'false') {
+                            wfContainer.dataset.loaded = 'true';
+                            const traceId = wfContainer.dataset.traceid;
+                            wfContainer.innerHTML = '<div class="waterfall"><span class="time">Loading trace…</span></div>';
+                            try {
+                                const data = await (await fetch(BASE + '/api/traces/' + encodeURIComponent(traceId))).json();
+                                const spans = data.spans || [];
+                                if (spans.length) {
+                                    const totalMs = Math.max(spans[spans.length - 1].offsetMs + spans[spans.length - 1].durationMs, 1);
+                                    const trace = { traceId, durationMs: totalMs };
+                                    wfContainer.innerHTML = buildWaterfall(spans, trace, 'log-' + i);
+                                } else {
+                                    wfContainer.innerHTML = '';
+                                }
+                            } catch {
+                                wfContainer.innerHTML = '<div class="waterfall"><span class="time">Failed to load trace</span></div>';
+                            }
+                        }
+                    }
                 }
 
                 function updateStats(logs) {
@@ -622,6 +653,7 @@ internal static class LogViewerHtml
                     if (isOpen) {
                         row.style.display = 'none';
                         if (btn) btn.textContent = '+';
+                        openSpanDetail = null;
                         return;
                     }
                     row.style.display = '';
@@ -631,13 +663,13 @@ internal static class LogViewerHtml
                     const cell = document.getElementById('trace-waterfall-' + i);
                     try {
                         const data = await (await fetch(BASE + '/api/traces/' + encodeURIComponent(t.traceId))).json();
-                        cell.innerHTML = buildWaterfall(data.spans || [], t);
+                        cell.innerHTML = buildWaterfall(data.spans || [], t, i);
                     } catch {
                         cell.innerHTML = '<div class="waterfall"><span class="time">Failed to load spans</span></div>';
                     }
                 }
 
-                function buildWaterfall(spans, trace) {
+                function buildWaterfall(spans, trace, traceIdx) {
                     if (!spans.length) return '<div class="waterfall"><span class="time">No spans</span></div>';
 
                     const totalMs = Math.max(trace.durationMs, 1);
@@ -670,14 +702,14 @@ internal static class LogViewerHtml
                         const methodBadge = s.httpMethod ? `<span class="badge method-${s.httpMethod.toLowerCase()}" style="font-size:10px;padding:1px 4px;">${esc(s.httpMethod)}</span> ` : '';
 
                         html += `
-                        <div class="waterfall-row${errClass}" onclick="toggleSpanDetail('span-d-${j}')" style="padding-left:${indent * 16}px">
+                        <div class="waterfall-row${errClass}" onclick="toggleSpanDetail('span-d-${traceIdx}-${j}')" style="padding-left:${indent * 16}px">
                             <span class="waterfall-label">${kindBadge}${methodBadge}${esc(label)}</span>
                             <div class="waterfall-track">
                                 <div class="waterfall-bar ${barClass}" style="left:${leftPct}%;width:${widthPct}%;" title="${s.durationMs.toFixed(1)} ms"></div>
                             </div>
                             <span class="waterfall-time">${s.durationMs.toFixed(1)} ms</span>
                         </div>
-                        <div class="span-detail" id="span-d-${j}">
+                        <div class="span-detail" id="span-d-${traceIdx}-${j}">
                             ${buildSpanAttrs(s)}
                         </div>`;
                     });

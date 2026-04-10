@@ -9,7 +9,7 @@ Log Battery Module — provides structured logging with Serilog, OpenTelemetry d
 - **Request Logging** — `UseCompactRequestLogging` middleware with configurable path exclusions (e.g. `/health`, `/alive`).
 - **Request/Response Body Capture** — logs request and response bodies for all endpoints by default (configurable prefix), truncated to 4 KB.
 - **Distributed Tracing** — OpenTelemetry tracing with ASP.NET Core and HttpClient instrumentation, OTLP export, and in-memory trace store.
-- **Built-in Log & Trace Viewer** — browser-based UI at `/logs` with two tabs: **Logs** for viewing, filtering, and searching log entries with request timeline grouping; **Traces** with waterfall visualization of spans.
+- **Built-in Log & Trace Viewer** — browser-based UI at `/logs` with two tabs: **Logs** for viewing, filtering, and searching log entries with request timeline grouping and integrated trace waterfall; **Traces** with waterfall visualization of spans. Expanding a log entry that has a trace ID shows the full span waterfall inline alongside the request timeline and log details.
 - **Rolling Files** — daily rolling log files with 30-day retention.
 
 ## Installation
