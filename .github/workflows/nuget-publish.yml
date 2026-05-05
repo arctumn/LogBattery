@@ -10,6 +10,7 @@ permissions:
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  PROJECT: Arctumn.LogBattery.csproj
 
 jobs:
   publish:
@@ -26,14 +27,20 @@ jobs:
             9.0.x
             10.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Compute version (strip leading v)
+        id: version
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          echo "value=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        run: dotnet restore "$PROJECT"
 
       - name: Build
-        run: dotnet build -c Release --no-restore
+        run: dotnet build "$PROJECT" -c Release --no-restore -p:Version=${{ steps.version.outputs.value }}
 
       - name: Pack
-        run: dotnet pack -c Release --no-build -p:Version=${{ github.event.release.tag_name }}
+        run: dotnet pack "$PROJECT" -c Release --no-build -p:Version=${{ steps.version.outputs.value }}
 
       - name: Push to NuGet
         run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
