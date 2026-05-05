@@ -1,7 +1,7 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery.Tracing;
 
 internal sealed class TraceStore
 {
@@ -80,18 +80,16 @@ internal sealed class TraceStore
                 t.TraceId.Contains(search, StringComparison.OrdinalIgnoreCase));
         }
 
-        return groups
+        return [.. groups
             .OrderByDescending(t => t.StartTime)
-            .Take(limit)
-            .ToList();
+            .Take(limit)];
     }
 
     internal List<SpanRecord> GetSpans(string traceId)
     {
-        return _spans
+        return [.. _spans
             .Where(s => s.TraceId == traceId)
-            .OrderBy(s => s.StartTimeUtc)
-            .ToList();
+            .OrderBy(s => s.StartTimeUtc)];
     }
 
     internal record SpanRecord(

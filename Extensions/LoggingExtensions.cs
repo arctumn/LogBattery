@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery.Extensions;
 
 /// <summary>
 /// Extension methods for configuring Serilog with compact structured logging.

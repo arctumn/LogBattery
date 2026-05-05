@@ -1,7 +1,7 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using OpenTelemetry;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery.Tracing;
 
 internal sealed class TraceStoreProcessor(TraceStore store) : BaseProcessor<Activity>
 {

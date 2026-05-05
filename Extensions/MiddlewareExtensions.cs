@@ -1,10 +1,11 @@
+﻿using Arctumn.LogBattery.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery.Extensions;
 
 /// <summary>
 /// Extension methods for registering logging middleware.
@@ -34,6 +35,7 @@ public static class MiddlewareExtensions
     /// </summary>
     /// <param name="app">The application builder.</param>
     /// <param name="excludedPaths">Path prefixes to suppress. When <c>null</c>, uses the paths configured in <see cref="LoggingExtensions.AddCompactLogging"/>.</param>
+    /// <param name="requestResponsePathPrefix">Path prefix that scopes request/response body capture. When <c>null</c>, bodies are captured for all routes.</param>
     public static IApplicationBuilder UseCompactRequestLogging(this IApplicationBuilder app, string[]? excludedPaths = null, string? requestResponsePathPrefix = null)
     {
         var paths = excludedPaths ?? LogBatteryConfig.ExcludedPaths;

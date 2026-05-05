@@ -1,4 +1,4 @@
-namespace LogBattery;
+namespace Arctumn.LogBattery;
 
 internal static class LogViewerHtml
 {
