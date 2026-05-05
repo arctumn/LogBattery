@@ -61,10 +61,11 @@ app.MapGet("/api/orders/{id:int}", (int id, ILogger<Program> logger) =>
 app.MapPost("/api/orders", (CreateOrderRequest request, ILogger<Program> logger) =>
 {
     var newId = Random.Shared.Next(1000, 9999);
-    logger.LogInformation("Creating order for {Customer} (qty={Quantity})", request.Customer, request.Quantity);
+    var safeCustomerForLog = (request.Customer ?? string.Empty).Replace("\r", "").Replace("\n", "");
+    logger.LogInformation("Creating order for {Customer} (qty={Quantity})", safeCustomerForLog, request.Quantity);
 
     if (request.Quantity > 50)
-        logger.LogWarning("Large order detected: {Quantity} units for {Customer}", request.Quantity, request.Customer);
+        logger.LogWarning("Large order detected: {Quantity} units for {Customer}", request.Quantity, safeCustomerForLog);
 
     return Results.Created($"/api/orders/{newId}", new { Id = newId, request.Customer, request.Quantity });
 });
