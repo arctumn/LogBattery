@@ -53,14 +53,24 @@ namespace Arctumn.LogBattery.Middleware
 
                 var truncatedRequest = Truncate(requestBody);
                 var truncatedResponse = Truncate(responseBody);
+                var sanitizedMethod = SanitizeForLog(request.Method);
 
                 logger.LogInformation(
                     "HTTP {RequestMethod} {RequestPath} | Request: {RequestBody} | Response: {ResponseBody}",
-                    request.Method,
+                    sanitizedMethod,
                     request.Path.ToString(),
                     truncatedRequest,
                     truncatedResponse);
             }
+        }
+
+        private static string SanitizeForLog(string? value)
+        {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+
+            return value
+                .Replace("\r", string.Empty)
+                .Replace("\n", string.Empty);
         }
 
         private static string Truncate(string value)
