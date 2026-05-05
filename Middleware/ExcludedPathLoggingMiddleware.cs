@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Arctumn.LogBattery.Extensions;
+using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery.Middleware;
 
 /// <summary>
 /// Pushes a Serilog <see cref="LogContext"/> property for requests whose path matches an excluded

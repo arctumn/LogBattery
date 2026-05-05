@@ -1,9 +1,10 @@
+﻿using Arctumn.LogBattery.Tracing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery.Extensions;
 
 /// <summary>
 /// Extension methods for mapping the built-in log viewer UI and API.
@@ -12,8 +13,12 @@ public static class LogViewerExtensions
 {
     /// <summary>
     /// Maps a browser-based log viewer UI and its JSON API at <paramref name="basePath"/>.
+    /// <para>
+    /// By default the viewer is open. To require authentication, call
+    /// <see cref="LogBatteryAuthExtensions.RequireLogBatteryAuth"/> beforehand.
+    /// </para>
     /// <example>
-    /// <para><b>Default path (/logs):</b></para>
+    /// <para><b>Default path (/logs), open access:</b></para>
     /// <code>
     /// app.MapLogViewer();
     /// </code>
@@ -22,6 +27,13 @@ public static class LogViewerExtensions
     /// <para><b>Custom path:</b></para>
     /// <code>
     /// app.MapLogViewer("/admin/logs");
+    /// </code>
+    /// </example>
+    /// <example>
+    /// <para><b>Protected with a custom authentication scheme:</b></para>
+    /// <code>
+    /// app.RequireLogBatteryAuth(ApiKeyAuthenticationHandler.SchemeName)
+    ///    .MapLogViewer();
     /// </code>
     /// </example>
     /// </summary>
@@ -48,7 +60,7 @@ public static class LogViewerExtensions
                 .ToList();
 
             return Results.Ok(files);
-        });
+        }).WithLogBatteryAuth();
 
         // --- Log entries (paginated) ---
         app.MapGet(basePath + "/api/entries", (string? file, string? level, string? search, int? page, int? pageSize) =>
@@ -109,7 +121,7 @@ public static class LogViewerExtensions
                 totalCount,
                 totalPages
             });
-        });
+        }).WithLogBatteryAuth();
 
         // --- Trace list ---
         app.MapGet(basePath + "/api/traces", (string? search, int? limit, HttpContext ctx) =>
@@ -134,7 +146,7 @@ public static class LogViewerExtensions
                 .ToList();
 
             return Results.Ok(new { traces, enabled = true });
-        });
+        }).WithLogBatteryAuth();
 
         // --- Trace detail (spans) ---
         app.MapGet(basePath + "/api/traces/{traceId}", (string traceId, HttpContext ctx) =>
@@ -166,10 +178,11 @@ public static class LogViewerExtensions
             }).ToList();
 
             return Results.Ok(new { spans = result, enabled = true });
-        });
+        }).WithLogBatteryAuth();
 
         // --- UI ---
-        app.MapGet(basePath, () => Results.Content(LogViewerHtml.GetHtml(), "text/html"));
+        app.MapGet(basePath, () => Results.Content(LogViewerHtml.GetHtml(), "text/html"))
+           .WithLogBatteryAuth();
 
         return app;
     }

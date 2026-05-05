@@ -1,9 +1,10 @@
+﻿using Arctumn.LogBattery.Tracing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery.Extensions;
 
 /// <summary>
 /// Extension methods for configuring OpenTelemetry distributed tracing.

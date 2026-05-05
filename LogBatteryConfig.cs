@@ -1,4 +1,4 @@
-namespace LogBattery;
+namespace Arctumn.LogBattery;
 
 internal static class LogBatteryConfig
 {
@@ -7,4 +7,5 @@ internal static class LogBatteryConfig
     internal static string LogDirectory { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "logs");
     internal static string[] ExcludedPaths { get; set; } = ["/logs", "/health", "/alive"];
     internal const string ExcludedPathProperty = "ExcludedPath";
+    internal static string? AuthenticationScheme { get; set; }
 }

@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace LogBattery;
+namespace Arctumn.LogBattery;
 
 internal static partial class LogParser
 {
