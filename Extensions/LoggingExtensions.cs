@@ -43,7 +43,6 @@ public static class LoggingExtensions
         string? logDirectory = null,
         string[]? excludedPaths = null)
     {
-        LogBatteryConfig.ServiceName = serviceName;
         LogBatteryConfig.LogFilePrefix = serviceName.ToLowerInvariant()
             .Replace(' ', '-')
             .Replace('_', '-');
