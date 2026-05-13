@@ -1,6 +1,6 @@
 # LogBattery
 
-Log Battery Module — provides structured logging with Serilog, OpenTelemetry distributed tracing, compact JSON file sinks, and a built-in browser log/trace viewer.
+Log Battery Module — provides structured logging with Serilog, compact JSON file sinks, and a built-in browser log viewer.
 
 ## Features
 
@@ -8,8 +8,7 @@ Log Battery Module — provides structured logging with Serilog, OpenTelemetry d
 - **Log Enrichment** — automatic enrichment with environment name, machine name, thread ID, and application name.
 - **Request Logging** — `UseCompactRequestLogging` middleware with configurable path exclusions (e.g. `/health`, `/alive`).
 - **Request/Response Body Capture** — logs request and response bodies for all endpoints by default (configurable prefix), truncated to 4 KB.
-- **Distributed Tracing** — OpenTelemetry tracing with ASP.NET Core and HttpClient instrumentation, OTLP export, and in-memory trace store.
-- **Built-in Log & Trace Viewer** — browser-based UI at `/logs` with two tabs: **Logs** for viewing, filtering, and searching log entries with request timeline grouping and integrated trace waterfall; **Traces** with waterfall visualization of spans. Expanding a log entry that has a trace ID shows the full span waterfall inline alongside the request timeline and log details.
+- **Built-in Log Viewer** — browser-based UI at `/logs` for viewing, filtering, and searching log entries by file, level, type (HTTP / Application), date range, and free-text.
 - **Pluggable Viewer Authentication** — `RequireLogBatteryAuth(scheme)` lets you protect the viewer with any ASP.NET Core authentication scheme (API key, JWT bearer, cookies, OAuth, or a custom `AuthenticationHandler`).
 - **Rolling Files** — daily rolling log files with 30-day retention.
 
@@ -37,29 +36,6 @@ app.UseCompactRequestLogging();
 app.MapLogViewer();  // browse to /logs
 ```
 
-### With OpenTelemetry tracing
-
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-builder.AddCompactLogging("MyApp")
-       .AddLogBatteryTracing();  // in-memory trace viewer
-
-var app = builder.Build();
-
-app.UseCompactRequestLogging();
-app.MapLogViewer();  // /logs → Logs tab + Traces tab
-```
-
-### With OTLP export (Jaeger, Grafana Tempo, etc.)
-
-```csharp
-builder.AddCompactLogging("MyApp")
-       .AddLogBatteryTracing(otlpEndpoint: "http://localhost:4317");
-```
-
-The OTLP exporter also respects the standard `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable.
-
 ## Configuration
 
 ### Custom log directory and excluded paths
@@ -68,18 +44,6 @@ The OTLP exporter also respects the standard `OTEL_EXPORTER_OTLP_ENDPOINT` envir
 builder.AddCompactLogging("MyApp",
     logDirectory: "/var/logs/my-service",
     excludedPaths: ["/health", "/alive", "/status", "/ready"]);
-```
-
-### Tracing options
-
-```csharp
-builder.AddLogBatteryTracing(
-    serviceName: "my-service",               // defaults to the name from AddCompactLogging
-    otlpEndpoint: "http://localhost:4317",   // optional — OTLP collector endpoint
-    configureTracing: tracing =>             // optional — further customisation
-    {
-        tracing.AddSqlClientInstrumentation();
-    });
 ```
 
 ### Request/Response body capture
@@ -169,7 +133,7 @@ routes (`/logs` and `/logs/api/...`) are gated by Basic auth.
 | `GET`  | `/api/orders/{id}` | Returns one order; logs `Warning` if the id is out of range |
 | `POST` | `/api/orders` | Creates an order; logs `Warning` for quantities > 50 |
 | `GET`  | `/api/error` | Throws to produce an `Error` log entry |
-| `GET`  | `/api/slow?ms=N` | `Task.Delay(N)` to generate latency for the trace waterfall |
+| `GET`  | `/api/slow?ms=N` | `Task.Delay(N)` to generate a slow request log |
 | `GET`  | `/api/burst?count=N` | Emits N logs in one shot — 70% Info, 20% Warn, 10% Error |
 
 A `LogSimulator : BackgroundService` also emits 3–8 random logs every 5 seconds
@@ -209,26 +173,21 @@ LogBattery/
 │
 ├── Extensions/
 │   ├── LoggingExtensions.cs                    # AddCompactLogging()
-│   ├── TracingExtensions.cs                    # AddLogBatteryTracing()
 │   ├── MiddlewareExtensions.cs                 # UseCompactRequestLogging(), ...
-│   ├── LogViewerExtensions.cs                  # MapLogViewer() + trace APIs
+│   ├── LogViewerExtensions.cs                  # MapLogViewer()
 │   └── LogBatteryAuthExtensions.cs             # RequireLogBatteryAuth()
 │
 ├── Middleware/
 │   ├── ExcludedPathLoggingMiddleware.cs        # Suppresses logs for excluded paths
 │   └── RequestResponseLoggingMiddleware.cs     # Captures HTTP request/response bodies
 │
-├── Tracing/
-│   ├── TraceStore.cs                           # In-memory ring buffer (5000 spans)
-│   └── TraceStoreProcessor.cs                  # OTel processor → TraceStore
-│
 ├── Viewer/
 │   ├── LogParser.cs                            # JSON log parsing + template rendering
-│   └── LogViewerHtml.cs                        # Embedded HTML/CSS/JS (Logs + Traces UI)
+│   └── LogViewerHtml.cs                        # Embedded HTML/CSS/JS for the viewer
 │
 └── samples/
     └── Arctumn.LogBattery.Sample.Api/           # Demo API (IsPackable=false, excluded from NuGet)
-        ├── Program.cs                           # Endpoints + AddCompactLogging + AddLogBatteryTracing
+        ├── Program.cs                           # Endpoints + AddCompactLogging
         ├── LogSimulator.cs                      # BackgroundService that emits log bursts
         └── Auth/BasicAuthenticationHandler.cs   # HTTP Basic handler protecting /logs
 ```
@@ -236,14 +195,11 @@ LogBattery/
 | Path | Description |
 |---|---|
 | `Extensions/LoggingExtensions.cs` | `AddCompactLogging` — Serilog configuration and setup |
-| `Extensions/TracingExtensions.cs` | `AddLogBatteryTracing` — OpenTelemetry tracing configuration |
 | `Extensions/MiddlewareExtensions.cs` | `UseCompactRequestLogging`, `UseExcludedPathLogging`, `UseRequestResponseLogging`, `UseSerilogCompactRequestLogging` |
-| `Extensions/LogViewerExtensions.cs` | `MapLogViewer` — log viewer and trace API endpoints |
+| `Extensions/LogViewerExtensions.cs` | `MapLogViewer` — log viewer and JSON API |
 | `Extensions/LogBatteryAuthExtensions.cs` | `RequireLogBatteryAuth` — protects the viewer with an ASP.NET Core authentication scheme |
 | `Middleware/ExcludedPathLoggingMiddleware.cs` | Suppresses logs for excluded path prefixes |
 | `Middleware/RequestResponseLoggingMiddleware.cs` | Captures and logs HTTP request/response bodies |
-| `Tracing/TraceStore.cs` | In-memory ring buffer for captured trace spans |
-| `Tracing/TraceStoreProcessor.cs` | OpenTelemetry processor that feeds spans into the trace store |
 | `Viewer/LogParser.cs` | JSON log file parsing and Serilog template rendering |
-| `Viewer/LogViewerHtml.cs` | Embedded HTML/CSS/JS for the browser-based log and trace viewer |
+| `Viewer/LogViewerHtml.cs` | Embedded HTML/CSS/JS for the browser-based log viewer |
 | `LogBatteryConfig.cs` | Internal shared configuration state |

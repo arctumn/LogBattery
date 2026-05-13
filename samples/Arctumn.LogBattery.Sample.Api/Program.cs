@@ -4,8 +4,7 @@ using Arctumn.LogBattery.Sample.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddCompactLogging("LogBattery.Sample.Api")
-       .AddLogBatteryTracing();
+builder.AddCompactLogging("LogBattery.Sample.Api");
 
 builder.Services.AddHostedService<LogSimulator>();
 

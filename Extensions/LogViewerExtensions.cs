@@ -1,8 +1,6 @@
-﻿using Arctumn.LogBattery.Tracing;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arctumn.LogBattery.Extensions;
 
@@ -63,7 +61,7 @@ public static class LogViewerExtensions
         }).WithLogBatteryAuth();
 
         // --- Log entries (paginated) ---
-        app.MapGet(basePath + "/api/entries", (string? file, string? level, string? search, int? page, int? pageSize) =>
+        app.MapGet(basePath + "/api/entries", (string? file, string? levels, string? search, int? page, int? pageSize) =>
         {
             if (!Directory.Exists(logDir))
                 return Results.Ok(new { entries = Array.Empty<object>(), page = 1, pageSize = 100, totalCount = 0, totalPages = 0 });
@@ -80,10 +78,16 @@ public static class LogViewerExtensions
 
             var lines = LogParser.ReadAllLines(targetFile);
 
+            var levelSet = string.IsNullOrWhiteSpace(levels)
+                ? null
+                : new HashSet<string>(
+                    levels.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                    StringComparer.OrdinalIgnoreCase);
+
             var filtered = lines
                 .Select(LogParser.ParseJsonLogLine)
                 .Where(e => e != null)
-                .Where(e => string.IsNullOrEmpty(level) || e!.Level.Equals(level, StringComparison.OrdinalIgnoreCase))
+                .Where(e => levelSet == null || levelSet.Contains(e!.Level))
                 .Where(e => string.IsNullOrEmpty(search) ||
                     (e!.Message?.Contains(search, StringComparison.OrdinalIgnoreCase) == true) ||
                     (e!.RequestPath?.Contains(search, StringComparison.OrdinalIgnoreCase) == true))
@@ -121,63 +125,6 @@ public static class LogViewerExtensions
                 totalCount,
                 totalPages
             });
-        }).WithLogBatteryAuth();
-
-        // --- Trace list ---
-        app.MapGet(basePath + "/api/traces", (string? search, int? limit, HttpContext ctx) =>
-        {
-            var store = ctx.RequestServices.GetService<TraceStore>();
-            if (store == null)
-                return Results.Ok(new { traces = Array.Empty<object>(), enabled = false });
-
-            var traces = store.GetTraces(search, limit ?? 50)
-                .Select(t => new
-                {
-                    traceId = t.TraceId,
-                    rootSpan = t.RootSpan,
-                    httpMethod = t.HttpMethod,
-                    httpRoute = t.HttpRoute,
-                    httpStatusCode = t.HttpStatusCode,
-                    startTime = t.StartTime.ToString("yyyy-MM-dd HH:mm:ss.fff"),
-                    durationMs = t.DurationMs,
-                    spanCount = t.SpanCount,
-                    hasErrors = t.HasErrors
-                })
-                .ToList();
-
-            return Results.Ok(new { traces, enabled = true });
-        }).WithLogBatteryAuth();
-
-        // --- Trace detail (spans) ---
-        app.MapGet(basePath + "/api/traces/{traceId}", (string traceId, HttpContext ctx) =>
-        {
-            var store = ctx.RequestServices.GetService<TraceStore>();
-            if (store == null)
-                return Results.Ok(new { spans = Array.Empty<object>(), enabled = false });
-
-            var spans = store.GetSpans(traceId);
-            if (spans.Count == 0)
-                return Results.Ok(new { spans = Array.Empty<object>(), enabled = true });
-
-            var traceStart = spans.Min(s => s.StartTimeUtc);
-
-            var result = spans.Select(s => new
-            {
-                spanId = s.SpanId,
-                parentSpanId = s.ParentSpanId,
-                operationName = s.OperationName,
-                kind = s.Kind,
-                startTime = s.StartTimeUtc.ToString("yyyy-MM-dd HH:mm:ss.fff"),
-                offsetMs = (s.StartTimeUtc - traceStart).TotalMilliseconds,
-                durationMs = s.DurationMs,
-                status = s.Status,
-                httpMethod = s.HttpMethod,
-                httpRoute = s.HttpRoute,
-                httpStatusCode = s.HttpStatusCode,
-                attributes = s.Attributes
-            }).ToList();
-
-            return Results.Ok(new { spans = result, enabled = true });
         }).WithLogBatteryAuth();
 
         // --- UI ---

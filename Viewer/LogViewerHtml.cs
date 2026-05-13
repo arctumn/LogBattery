@@ -86,62 +86,16 @@ internal static class LogViewerHtml
                 .detail-message { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: #c9d1d9; word-break: break-word; white-space: pre-wrap; }
                 .detail-exception { background: #1a0000; border: 1px solid #490202; border-radius: 6px; padding: 10px 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 11px; color: #f85149; word-break: break-word; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
 
-                .log-waterfall-container { margin-bottom: 12px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; }
-                .log-waterfall-container .waterfall { padding: 12px; }
-                .timeline-title { color: #8b949e; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin: 12px 0 6px; display: flex; align-items: center; gap: 8px; }
-                .sub-table { width: 100%; border-collapse: collapse; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; font-size: 12px; }
-                .sub-table th { text-align: left; padding: 6px 10px; background: #0a0d12; color: #8b949e; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #30363d; white-space: nowrap; }
-                .sub-table td { padding: 5px 10px; border-bottom: 1px solid #1c2128; vertical-align: middle; }
-                .sub-table tr:last-child td, .sub-table tr:nth-last-child(2):has(+ tr[style*="display:none"]) td { border-bottom: none; }
-                .sub-row { cursor: pointer; }
-                .sub-row:hover > td { background: #161b22; }
-                .sub-row.has-exception > td:first-child { border-left: 3px solid #f85149; padding-left: 7px; }
-                .sub-table .time { font-size: 11px; color: #8b949e; white-space: nowrap; font-family: 'SF Mono', Consolas, monospace; }
-                .sub-detail-row > td { background: #080b0f; padding: 0; border-bottom: 1px solid #30363d; }
-                .sub-detail-row .detail-panel { padding: 10px 12px 12px 20px; }
-
-                .tabs { display: flex; gap: 2px; }
-                .tab { padding: 6px 16px; border-radius: 6px 6px 0 0; border: 1px solid #30363d; border-bottom: none; background: #0d1117; color: #8b949e; font-size: 13px; font-weight: 600; cursor: pointer; }
-                .tab.active { background: #161b22; color: #58a6ff; border-bottom: 2px solid #58a6ff; }
-                .tab:hover:not(.active) { color: #c9d1d9; }
-
-                .view-panel { display: none; }
-                .view-panel.active { display: block; }
-
-                .trace-list { width: 100%; border-collapse: collapse; font-size: 13px; }
-                .trace-list th { text-align: left; padding: 10px 12px; background: #161b22; color: #8b949e; position: sticky; top: 0; border-bottom: 1px solid #30363d; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; z-index: 1; }
-                .trace-list td { padding: 7px 12px; border-bottom: 1px solid #1c2128; vertical-align: middle; }
-                .trace-row:hover > td { background: #161b22; cursor: pointer; }
-                .trace-row.has-error > td:first-child { border-left: 3px solid #f85149; padding-left: 9px; }
-                .trace-id { font-family: 'SF Mono', Consolas, monospace; font-size: 11px; color: #58a6ff; }
-                .span-count { display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 11px; background: #21262d; color: #8b949e; font-family: 'SF Mono', Consolas, monospace; }
-
-                .waterfall { padding: 16px; background: #0a0d12; }
-                .waterfall-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-                .waterfall-title { color: #58a6ff; font-size: 14px; font-weight: 600; }
-                .waterfall-duration { color: #8b949e; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; }
-                .waterfall-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; min-height: 26px; cursor: pointer; }
-                .waterfall-row:hover { background: #161b22; border-radius: 4px; }
-                .waterfall-row.has-error .waterfall-label { color: #f85149; }
-                .waterfall-label { width: 280px; flex-shrink: 0; font-size: 12px; color: #c9d1d9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'SF Mono', Consolas, monospace; }
-                .waterfall-label .kind-badge { font-size: 9px; padding: 1px 4px; border-radius: 3px; margin-right: 4px; background: #21262d; color: #8b949e; }
-                .waterfall-track { flex: 1; position: relative; height: 20px; background: #161b22; border-radius: 3px; }
-                .waterfall-bar { position: absolute; height: 100%; border-radius: 3px; min-width: 2px; }
-                .waterfall-bar.bar-ok { background: #1f6feb; }
-                .waterfall-bar.bar-error { background: #f85149; }
-                .waterfall-time { width: 80px; flex-shrink: 0; text-align: right; font-size: 11px; color: #8b949e; font-family: 'SF Mono', Consolas, monospace; }
-
-                .span-detail { background: #161b22; border: 1px solid #30363d; border-radius: 6px; margin: 4px 0 8px 288px; padding: 10px 14px; display: none; }
-                .span-detail.open { display: block; }
-                .span-attr-grid { display: grid; grid-template-columns: 140px 1fr; gap: 2px 12px; font-size: 12px; }
-                .span-attr-key { color: #8b949e; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 0; }
-                .span-attr-val { color: #c9d1d9; font-family: 'SF Mono', Consolas, monospace; word-break: break-all; padding: 2px 0; }
-
-                .trace-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; flex: 1; }
-                .trace-stats-bar { background: #161b22; padding: 8px 20px; border-bottom: 1px solid #21262d; display: flex; gap: 16px; align-items: center; font-size: 13px; }
-                .trace-empty { text-align: center; padding: 48px; color: #8b949e; }
-
                 .empty { text-align: center; padding: 48px; color: #8b949e; }
+
+                .multi-filter { position: relative; }
+                .multi-filter-btn { padding: 6px 10px; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; font-size: 13px; cursor: pointer; min-width: 120px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+                .multi-filter-btn:hover { border-color: #8b949e; }
+                .multi-filter-btn .caret { color: #8b949e; font-size: 10px; }
+                .multi-filter-dropdown { position: absolute; top: calc(100% + 4px); left: 0; background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; gap: 2px; min-width: 140px; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+                .multi-filter-dropdown label { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 4px; font-size: 13px; color: #c9d1d9; cursor: pointer; user-select: none; }
+                .multi-filter-dropdown label:hover { background: #30363d; }
+                .multi-filter-dropdown input[type=checkbox] { cursor: pointer; accent-color: #1f6feb; }
 
                 .pagination-bar { background: #161b22; padding: 8px 20px; border-bottom: 1px solid #21262d; display: flex; gap: 8px; align-items: center; font-size: 13px; }
                 .pagination-bar button { padding: 4px 10px; border-radius: 4px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; font-size: 14px; cursor: pointer; min-width: 32px; }
@@ -154,18 +108,24 @@ internal static class LogViewerHtml
         <body>
             <div class="header">
                 <h1>Log Battery</h1>
-                <div class="tabs">
-                    <button class="tab active" id="tabLogs" onclick="switchTab('logs')">Logs</button>
-                    <button class="tab" id="tabTraces" onclick="switchTab('traces')">Traces</button>
-                </div>
-                <div class="controls" id="logControls">
+                <div class="controls">
                     <select id="fileSelect" onchange="loadLogs(1)"></select>
-                    <select id="levelFilter" onchange="loadLogs(1)">
-                        <option value="">All Levels</option>
-                        <option value="Information">Info</option>
-                        <option value="Warning">Warning</option>
-                        <option value="Error">Error</option>
-                        <option value="Fatal">Fatal</option>
+                    <div class="multi-filter">
+                        <button type="button" class="multi-filter-btn" id="levelFilterBtn" onclick="toggleLevelDropdown(event)">
+                            <span id="levelFilterLabel">All Levels</span>
+                            <span class="caret">▾</span>
+                        </button>
+                        <div class="multi-filter-dropdown" id="levelDropdown" style="display:none">
+                            <label><input type="checkbox" value="Information" onchange="onLevelChange()"> Info</label>
+                            <label><input type="checkbox" value="Warning" onchange="onLevelChange()"> Warning</label>
+                            <label><input type="checkbox" value="Error" onchange="onLevelChange()"> Error</label>
+                            <label><input type="checkbox" value="Fatal" onchange="onLevelChange()"> Fatal</label>
+                        </div>
+                    </div>
+                    <select id="typeFilter" onchange="applyClientFilters()">
+                        <option value="">All Types</option>
+                        <option value="http">HTTP Request</option>
+                        <option value="app">Application</option>
                     </select>
                     <input type="text"  id="searchInput" placeholder="Search..." style="width:150px;">
                     <input type="date"  id="dateFrom" onchange="applyClientFilters()">
@@ -173,13 +133,7 @@ internal static class LogViewerHtml
                     <button class="primary" onclick="loadLogs()">Refresh</button>
                     <button id="autoBtn" onclick="toggleAuto()">Auto: OFF</button>
                 </div>
-                <div class="trace-controls" id="traceControls" style="display:none">
-                    <input type="text" id="traceSearchInput" placeholder="Search traces..." style="width:180px;">
-                    <button class="primary" onclick="loadTraces()">Refresh</button>
-                    <button id="traceAutoBtn" onclick="toggleTraceAuto()">Auto: OFF</button>
-                </div>
             </div>
-            <div id="logsView" class="view-panel active">
             <div class="stats-bar">
                 <div class="stat stat-inf"><span class="stat-badge">INF</span><span class="stat-count" id="cntInf">0</span></div>
                 <div class="stat stat-wrn"><span class="stat-badge">WRN</span><span class="stat-count" id="cntWrn">0</span></div>
@@ -216,36 +170,11 @@ internal static class LogViewerHtml
                 </table>
                 <div class="empty" id="empty" style="display:none;">No log entries found</div>
             </div>
-            </div><!-- end logsView -->
-
-            <div id="tracesView" class="view-panel">
-            <div class="trace-stats-bar">
-                <span class="stat"><span class="stat-badge" style="background:#0c2d6b;color:#79c0ff;">TRACES</span><span class="stat-count" id="traceCount">0</span></span>
-                <span class="total-count" id="traceTotal">0 traces</span>
-            </div>
-            <div class="container">
-                <table class="trace-list">
-                    <thead>
-                        <tr>
-                            <th style="width:165px">Timestamp</th>
-                            <th style="width:130px">Method / Status</th>
-                            <th>Root Span</th>
-                            <th style="width:70px">Spans</th>
-                            <th style="width:100px">Duration</th>
-                            <th style="width:100px">Trace ID</th>
-                            <th style="width:44px"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="traceBody"></tbody>
-                </table>
-                <div class="trace-empty" id="traceEmpty" style="display:none;">No traces captured yet. Tracing is enabled when <code>AddLogBatteryTracing()</code> is called.</div>
-            </div>
-            </div><!-- end tracesView -->
             <script>
                 // Derive API base from current page URL — works regardless of mount path.
                 const BASE = window.location.pathname.replace(/\/$/, '');
 
-                let allLogs = [], traceMap = new Map(), autoInterval = null, searchTimeout = null;
+                let allLogs = [], autoInterval = null, searchTimeout = null;
                 let currentPage = 1, totalPages = 1, currentPageSize = 100;
 
                 async function loadFiles() {
@@ -261,7 +190,7 @@ internal static class LogViewerHtml
                     if (page != null) currentPage = page;
                     const params = new URLSearchParams({
                         file:     document.getElementById('fileSelect').value  || '',
-                        level:    document.getElementById('levelFilter').value || '',
+                        levels:   getSelectedLevels().join(','),
                         search:   document.getElementById('searchInput').value || '',
                         page:     String(currentPage),
                         pageSize: String(currentPageSize)
@@ -273,7 +202,6 @@ internal static class LogViewerHtml
                         totalPages  = data.totalPages || 1;
                         updatePagination(data.totalCount || 0);
                     } catch { allLogs = []; }
-                    buildTraceMap();
                     applyClientFilters();
                 }
 
@@ -296,37 +224,20 @@ internal static class LogViewerHtml
                     document.getElementById('btnLast').disabled  = currentPage >= totalPages;
                 }
 
-                // The HTTP request summary from RequestLoggingMiddleware is the only entry
-                // that has requestMethod + statusCode + elapsed together.
-                // Other entries get RequestPath enriched from context but are NOT the summary.
-                function isHttpSummary(l) {
+                function isHttpRequest(l) {
                     return !!(l.requestMethod && l.requestPath && l.statusCode != null && l.elapsed != null);
-                }
-
-                function buildTraceMap() {
-                    traceMap.clear();
-                    allLogs.forEach(l => {
-                        if (!l.traceId) return;
-                        if (!traceMap.has(l.traceId)) traceMap.set(l.traceId, { parent: null, children: [] });
-                        const g = traceMap.get(l.traceId);
-                        if (isHttpSummary(l)) g.parent = l; else g.children.push(l);
-                    });
-                }
-
-                // An entry is a child if its traceId has an HTTP summary parent
-                function isChild(l) {
-                    if (!l.traceId || isHttpSummary(l)) return false;
-                    const g = traceMap.get(l.traceId);
-                    return !!(g && g.parent);
                 }
 
                 function applyClientFilters() {
                     const dateFrom = document.getElementById('dateFrom').value;
                     const dateTo   = document.getElementById('dateTo').value;
+                    const type     = document.getElementById('typeFilter').value;
 
                     let filtered = allLogs;
                     if (dateFrom) filtered = filtered.filter(l => l.timestamp >= dateFrom);
                     if (dateTo)   filtered = filtered.filter(l => l.timestamp.substring(0,10) <= dateTo);
+                    if (type === 'http') filtered = filtered.filter(isHttpRequest);
+                    else if (type === 'app') filtered = filtered.filter(l => !isHttpRequest(l));
 
                     updateStats(filtered);
                     renderTable(filtered);
@@ -336,8 +247,7 @@ internal static class LogViewerHtml
                 function renderTable(logs) {
                     const body  = document.getElementById('logBody');
                     const empty = document.getElementById('empty');
-                    // Hide entries that are grouped under a parent HTTP row
-                    visibleLogs = logs.filter(l => !isChild(l));
+                    visibleLogs = logs;
                     if (!visibleLogs.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
                     empty.style.display = 'none';
                     body.innerHTML = visibleLogs.map(buildRow).join('');
@@ -397,31 +307,9 @@ internal static class LogViewerHtml
                     if (l.statusCode)     items.push(['Status',    l.statusCode]);
                     if (l.elapsed!=null)  items.push(['Elapsed',   l.elapsed.toFixed(4)+' ms']);
                     if (l.level)          items.push(['Level',     l.level]);
-                    if (l.traceId)        items.push(['Trace ID',  l.traceId]);
                     if (l.properties)     Object.entries(l.properties).forEach(([k,v]) => items.push([k, v]));
 
                     let html = '<div class="detail-panel">';
-
-                    // Request timeline — grouped children, each expandable
-                    if (l.requestPath && l.traceId) {
-                        const group = traceMap.get(l.traceId);
-                        const children = (group ? group.children : [])
-                            .slice().sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-                        if (children.length) {
-                            const countBadge = `<span class="badge level-Information">${children.length}</span>`;
-                            html += `<div class="timeline-title">Request Timeline ${countBadge}</div>
-                            <table class="sub-table">
-                                <thead><tr><th>Time</th><th>Level</th><th>Message</th><th style="width:36px"></th></tr></thead>
-                                <tbody>${children.map((e, j) => buildSubRow(e, `${rowIdx}-${j}`)).join('')}</tbody>
-                            </table>`;
-                        }
-                    }
-
-                    // Trace waterfall placeholder — loaded on expand
-                    if (l.traceId) {
-                        html += `<div id="log-waterfall-${rowIdx}" class="log-waterfall-container" data-traceid="${esc(l.traceId)}" data-loaded="false"></div>`;
-                    }
-
                     if (items.length) html += `<div class="detail-props">${buildProps(items)}</div>`;
                     if (l.message)   html += `<div class="detail-section"><div class="detail-section-title">Message</div><div class="detail-message">${esc(l.message)}</div></div>`;
                     if (l.exception) html += `<div class="detail-section"><div class="detail-section-title">Exception</div><div class="detail-exception">${esc(l.exception)}</div></div>`;
@@ -447,46 +335,6 @@ internal static class LogViewerHtml
                     }).join('');
                 }
 
-                function buildSubRow(e, id) {
-                    const time = e.timestamp ? e.timestamp.substring(11, 23) : '';
-                    const levelClass = 'badge level-' + (e.level || 'Information');
-                    const exClass = e.exception ? ' has-exception' : '';
-                    return `
-                    <tr class="sub-row${exClass}" onclick="toggleSubRow('sd-${id}')">
-                        <td class="time">${esc(time)}</td>
-                        <td><span class="${levelClass}">${esc(e.level)}</span></td>
-                        <td class="path-cell app-message">${esc(trunc(e.message || '', 200))}</td>
-                        <td><button class="expand-btn" onclick="event.stopPropagation();toggleSubRow('sd-${id}')">+</button></td>
-                    </tr>
-                    <tr id="sd-${id}" class="sub-detail-row" style="display:none">
-                        <td colspan="4">${buildSubDetail(e)}</td>
-                    </tr>`;
-                }
-
-                function buildSubDetail(e) {
-                    const items = [];
-                    if (e.machineName)    items.push(['Machine',   e.machineName]);
-                    if (e.threadId!=null) items.push(['Thread ID', e.threadId]);
-                    if (e.level)          items.push(['Level',     e.level]);
-                    if (e.traceId)        items.push(['Trace ID',  e.traceId]);
-                    if (e.properties)     Object.entries(e.properties).forEach(([k,v]) => items.push([k, v]));
-                    let html = '<div class="detail-panel">';
-                    if (items.length) html += `<div class="detail-props">${buildProps(items)}</div>`;
-                    if (e.message)   html += `<div class="detail-section"><div class="detail-section-title">Message</div><div class="detail-message">${esc(e.message)}</div></div>`;
-                    if (e.exception) html += `<div class="detail-section"><div class="detail-section-title">Exception</div><div class="detail-exception">${esc(e.exception)}</div></div>`;
-                    html += '</div>';
-                    return html;
-                }
-
-                function toggleSubRow(id) {
-                    const row = document.getElementById(id);
-                    if (!row) return;
-                    const open = row.style.display === 'none';
-                    row.style.display = open ? '' : 'none';
-                    const btn = row.previousElementSibling && row.previousElementSibling.querySelector('.expand-btn');
-                    if (btn) btn.textContent = open ? '−' : '+';
-                }
-
                 function toggleProp(el) {
                     const val = el.querySelector('.detail-prop-value');
                     const tog = el.querySelector('.detail-prop-toggle');
@@ -494,36 +342,13 @@ internal static class LogViewerHtml
                     tog.textContent = expanded ? '▲ less' : '▼ more';
                 }
 
-                async function toggleRow(i) {
+                function toggleRow(i) {
                     const row = document.getElementById('detail-' + i);
                     if (!row) return;
                     const btn  = document.querySelector(`[data-idx="${i}"] .expand-btn`);
                     const open = row.style.display === 'none';
                     row.style.display = open ? '' : 'none';
                     if (btn) btn.textContent = open ? '−' : '+';
-
-                    // Lazy-load trace waterfall on first expand
-                    if (open) {
-                        const wfContainer = document.getElementById('log-waterfall-' + i);
-                        if (wfContainer && wfContainer.dataset.loaded === 'false') {
-                            wfContainer.dataset.loaded = 'true';
-                            const traceId = wfContainer.dataset.traceid;
-                            wfContainer.innerHTML = '<div class="waterfall"><span class="time">Loading trace…</span></div>';
-                            try {
-                                const data = await (await fetch(BASE + '/api/traces/' + encodeURIComponent(traceId))).json();
-                                const spans = data.spans || [];
-                                if (spans.length) {
-                                    const totalMs = Math.max(spans[spans.length - 1].offsetMs + spans[spans.length - 1].durationMs, 1);
-                                    const trace = { traceId, durationMs: totalMs };
-                                    wfContainer.innerHTML = buildWaterfall(spans, trace, 'log-' + i);
-                                } else {
-                                    wfContainer.innerHTML = '';
-                                }
-                            } catch {
-                                wfContainer.innerHTML = '<div class="waterfall"><span class="time">Failed to load trace</span></div>';
-                            }
-                        }
-                    }
                 }
 
                 function updateStats(logs) {
@@ -538,10 +363,7 @@ internal static class LogViewerHtml
                     document.getElementById('cntWrn').textContent = wrn;
                     document.getElementById('cntErr').textContent = err;
                     document.getElementById('cntFtl').textContent = ftl;
-                    const rows = logs.filter(l => !isChild(l)).length;
-                    const grouped = logs.length - rows;
-                    document.getElementById('totalCount').textContent =
-                        grouped > 0 ? `${rows} rows · ${logs.length} events` : `${rows} entries`;
+                    document.getElementById('totalCount').textContent = `${logs.length} entries`;
                 }
 
                 function toggleAuto() {
@@ -569,201 +391,34 @@ internal static class LogViewerHtml
                     searchTimeout = setTimeout(() => loadLogs(1), 300);
                 });
 
-                // --- Tab switching ---
-                let activeTab = 'logs';
-                function switchTab(tab) {
-                    activeTab = tab;
-                    document.getElementById('tabLogs').classList.toggle('active', tab === 'logs');
-                    document.getElementById('tabTraces').classList.toggle('active', tab === 'traces');
-                    document.getElementById('logsView').classList.toggle('active', tab === 'logs');
-                    document.getElementById('tracesView').classList.toggle('active', tab === 'traces');
-                    document.getElementById('logControls').style.display = tab === 'logs' ? '' : 'none';
-                    document.getElementById('traceControls').style.display = tab === 'traces' ? '' : 'none';
-                    if (tab === 'traces' && !tracesLoaded) loadTraces();
+                function getSelectedLevels() {
+                    return Array.from(document.querySelectorAll('#levelDropdown input:checked')).map(c => c.value);
                 }
 
-                // --- Traces ---
-                let allTraces = [], tracesLoaded = false, traceAutoInterval = null, traceSearchTimeout = null;
-                let openSpanDetail = null;
-
-                async function loadTraces() {
-                    const search = document.getElementById('traceSearchInput').value || '';
-                    const params = new URLSearchParams({ search, limit: '100' });
-                    try {
-                        const data = await (await fetch(BASE + '/api/traces?' + params)).json();
-                        if (!data.enabled) {
-                            document.getElementById('traceEmpty').textContent = 'Tracing not enabled. Call AddLogBatteryTracing() to enable.';
-                            document.getElementById('traceEmpty').style.display = 'block';
-                            document.getElementById('traceBody').innerHTML = '';
-                            return;
-                        }
-                        allTraces = data.traces || [];
-                        tracesLoaded = true;
-                    } catch { allTraces = []; }
-                    renderTraces();
+                function updateLevelLabel() {
+                    const sel = getSelectedLevels();
+                    const label = document.getElementById('levelFilterLabel');
+                    if (sel.length === 0) label.textContent = 'All Levels';
+                    else if (sel.length === 1) label.textContent = sel[0] === 'Information' ? 'Info' : sel[0];
+                    else label.textContent = `${sel.length} Levels`;
                 }
 
-                function renderTraces() {
-                    const body = document.getElementById('traceBody');
-                    const empty = document.getElementById('traceEmpty');
-                    document.getElementById('traceCount').textContent = allTraces.length;
-                    document.getElementById('traceTotal').textContent = allTraces.length + ' traces';
-
-                    if (!allTraces.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
-                    empty.style.display = 'none';
-
-                    body.innerHTML = allTraces.map((t, i) => {
-                        const errClass = t.hasErrors ? ' has-error' : '';
-                        const methodBadge = t.httpMethod
-                            ? `<span class="badge method-${t.httpMethod.toLowerCase()}">${esc(t.httpMethod)}</span>` : '';
-                        let statusClass = '';
-                        if (t.httpStatusCode) {
-                            const s = t.httpStatusCode;
-                            statusClass = s < 300 ? 'status-2xx' : s < 400 ? 'status-3xx' : s < 500 ? 'status-4xx' : 'status-5xx';
-                        }
-                        const statusBadge = t.httpStatusCode
-                            ? `<span class="badge ${statusClass}">${t.httpStatusCode}</span>` : '';
-
-                        const rootLabel = t.httpRoute || t.rootSpan || '-';
-                        const dur = t.durationMs != null ? t.durationMs.toFixed(1) + ' ms' : '-';
-                        const durClass = t.durationMs > 2000 ? ' very-slow' : t.durationMs > 500 ? ' slow' : '';
-                        const shortId = t.traceId.substring(0, 8) + '…';
-
-                        return `
-                        <tr class="trace-row${errClass}" onclick="toggleTrace(${i})" data-tidx="${i}">
-                            <td class="time">${esc(t.startTime)}</td>
-                            <td><div class="method-status">${methodBadge}${statusBadge}</div></td>
-                            <td class="path-cell">${esc(rootLabel)}</td>
-                            <td><span class="span-count">${t.spanCount}</span></td>
-                            <td><span class="duration${durClass}">${dur}</span></td>
-                            <td><span class="trace-id" title="${esc(t.traceId)}">${esc(shortId)}</span></td>
-                            <td><button class="expand-btn" onclick="event.stopPropagation();toggleTrace(${i})">+</button></td>
-                        </tr>
-                        <tr class="detail-row" id="trace-detail-${i}" style="display:none">
-                            <td colspan="7" id="trace-waterfall-${i}"><div class="waterfall"><span class="time">Loading…</span></div></td>
-                        </tr>`;
-                    }).join('');
+                function toggleLevelDropdown(e) {
+                    if (e) e.stopPropagation();
+                    const dd = document.getElementById('levelDropdown');
+                    dd.style.display = dd.style.display === 'none' ? 'flex' : 'none';
                 }
 
-                async function toggleTrace(i) {
-                    const row = document.getElementById('trace-detail-' + i);
-                    if (!row) return;
-                    const btn = document.querySelector(`[data-tidx="${i}"] .expand-btn`);
-                    const isOpen = row.style.display !== 'none';
-                    if (isOpen) {
-                        row.style.display = 'none';
-                        if (btn) btn.textContent = '+';
-                        openSpanDetail = null;
-                        return;
-                    }
-                    row.style.display = '';
-                    if (btn) btn.textContent = '−';
-
-                    const t = allTraces[i];
-                    const cell = document.getElementById('trace-waterfall-' + i);
-                    try {
-                        const data = await (await fetch(BASE + '/api/traces/' + encodeURIComponent(t.traceId))).json();
-                        cell.innerHTML = buildWaterfall(data.spans || [], t, i);
-                    } catch {
-                        cell.innerHTML = '<div class="waterfall"><span class="time">Failed to load spans</span></div>';
-                    }
+                function onLevelChange() {
+                    updateLevelLabel();
+                    loadLogs(1);
                 }
 
-                function buildWaterfall(spans, trace, traceIdx) {
-                    if (!spans.length) return '<div class="waterfall"><span class="time">No spans</span></div>';
-
-                    const totalMs = Math.max(trace.durationMs, 1);
-                    let html = `<div class="waterfall">
-                        <div class="waterfall-header">
-                            <span class="waterfall-title">Trace ${esc(trace.traceId)}</span>
-                            <span class="waterfall-duration">${totalMs.toFixed(1)} ms · ${spans.length} spans</span>
-                        </div>`;
-
-                    // Build tree for indentation
-                    const byId = new Map();
-                    spans.forEach(s => byId.set(s.spanId, s));
-
-                    function depth(s) {
-                        let d = 0, cur = s;
-                        while (cur.parentSpanId && byId.has(cur.parentSpanId) && d < 10) {
-                            d++; cur = byId.get(cur.parentSpanId);
-                        }
-                        return d;
-                    }
-
-                    spans.forEach((s, j) => {
-                        const indent = depth(s);
-                        const leftPct = (s.offsetMs / totalMs * 100).toFixed(2);
-                        const widthPct = Math.max(s.durationMs / totalMs * 100, 0.5).toFixed(2);
-                        const barClass = s.status === 'Error' ? 'bar-error' : 'bar-ok';
-                        const errClass = s.status === 'Error' ? ' has-error' : '';
-                        const label = s.operationName || s.httpRoute || '-';
-                        const kindBadge = s.kind ? `<span class="kind-badge">${esc(s.kind)}</span>` : '';
-                        const methodBadge = s.httpMethod ? `<span class="badge method-${s.httpMethod.toLowerCase()}" style="font-size:10px;padding:1px 4px;">${esc(s.httpMethod)}</span> ` : '';
-
-                        html += `
-                        <div class="waterfall-row${errClass}" onclick="toggleSpanDetail('span-d-${traceIdx}-${j}')" style="padding-left:${indent * 16}px">
-                            <span class="waterfall-label">${kindBadge}${methodBadge}${esc(label)}</span>
-                            <div class="waterfall-track">
-                                <div class="waterfall-bar ${barClass}" style="left:${leftPct}%;width:${widthPct}%;" title="${s.durationMs.toFixed(1)} ms"></div>
-                            </div>
-                            <span class="waterfall-time">${s.durationMs.toFixed(1)} ms</span>
-                        </div>
-                        <div class="span-detail" id="span-d-${traceIdx}-${j}">
-                            ${buildSpanAttrs(s)}
-                        </div>`;
-                    });
-
-                    html += '</div>';
-                    return html;
-                }
-
-                function buildSpanAttrs(s) {
-                    const items = [
-                        ['Span ID', s.spanId],
-                        ['Parent', s.parentSpanId || '(root)'],
-                        ['Kind', s.kind],
-                        ['Status', s.status],
-                        ['Start', s.startTime],
-                        ['Duration', s.durationMs.toFixed(4) + ' ms'],
-                    ];
-                    if (s.httpMethod) items.push(['HTTP Method', s.httpMethod]);
-                    if (s.httpRoute) items.push(['HTTP Route', s.httpRoute]);
-                    if (s.httpStatusCode) items.push(['HTTP Status', s.httpStatusCode]);
-                    if (s.attributes) {
-                        Object.entries(s.attributes).forEach(([k, v]) => {
-                            if (!k.startsWith('http.') && !k.startsWith('url.') && k !== 'server.address' && k !== 'server.port')
-                                items.push([k, v]);
-                        });
-                    }
-                    return `<div class="span-attr-grid">${items.map(([k, v]) =>
-                        `<span class="span-attr-key">${esc(k)}</span><span class="span-attr-val">${esc(String(v ?? ''))}</span>`
-                    ).join('')}</div>`;
-                }
-
-                function toggleSpanDetail(id) {
-                    const el = document.getElementById(id);
-                    if (!el) return;
-                    const isOpen = el.classList.contains('open');
-                    if (openSpanDetail && openSpanDetail !== el) openSpanDetail.classList.remove('open');
-                    el.classList.toggle('open');
-                    openSpanDetail = isOpen ? null : el;
-                }
-
-                function toggleTraceAuto() {
-                    const btn = document.getElementById('traceAutoBtn');
-                    if (traceAutoInterval) {
-                        clearInterval(traceAutoInterval); traceAutoInterval = null;
-                        btn.textContent = 'Auto: OFF'; btn.classList.remove('active');
-                    } else {
-                        traceAutoInterval = setInterval(loadTraces, 5000);
-                        btn.textContent = 'Auto: ON'; btn.classList.add('active');
-                    }
-                }
-
-                document.getElementById('traceSearchInput').addEventListener('keyup', () => {
-                    clearTimeout(traceSearchTimeout);
-                    traceSearchTimeout = setTimeout(loadTraces, 300);
+                document.addEventListener('click', e => {
+                    const dd = document.getElementById('levelDropdown');
+                    const btn = document.getElementById('levelFilterBtn');
+                    if (dd.style.display !== 'none' && !dd.contains(e.target) && !btn.contains(e.target))
+                        dd.style.display = 'none';
                 });
 
                 loadFiles().then(loadLogs);
